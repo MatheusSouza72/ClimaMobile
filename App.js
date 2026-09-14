@@ -1,28 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, SafeAreaView, ScrollView } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  SafeAreaView, 
+  ScrollView, 
+  RefreshControl,
+  TextInput,
+  TouchableOpacity
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { Ionicons } from '@expo/vector-icons';
 import { getWeather } from './src/service/api';
+import { getWeatherIcon } from './src/utils/getWeatherIcons';
 import HourlyForecast from './src/components/HourlyForecast';
 import NextForecast from './src/components/NextForecast';
 
 export default function App() {
   const [weatherData, setWeatherData] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchCity, setSearchCity] = useState('');
+  const [currentCity, setCurrentCity] = useState('Recife,PE');
 
+  // Função que busca os dados da cidade atual
+  const fetchWeather = async (cityToFetch) => {
+    const data = await getWeather(cityToFetch);
+    console.log("Dados salvos no state:", data);
+    if (data) {
+      setWeatherData(data);
+    }
+    setRefreshing(false);
+  };
+
+  // Dispara toda vez que 'currentCity' muda
   useEffect(() => {
-    const fetchWeather = async () => {
-      const data = await getWeather();
-      console.log("Dados salvos no state:", data); // Ajuda a ver no terminal se os dados chegaram
-      if (data) {
-        setWeatherData(data);
-      }
-    };
+    fetchWeather(currentCity);
+  }, [currentCity]);
 
-    fetchWeather();
-  }, []);
+  // Ação de buscar ao clicar na lupa ou dar Enter
+  const handleSearch = () => {
+    if (searchCity.trim() !== '') {
+      setCurrentCity(searchCity);
+      setSearchCity('');
+    }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchWeather(currentCity);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <StatusBar style="light" />
+      
+      <ScrollView 
+        contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
+        }
+      >
         
+        {/* Barra de Pesquisa Interativa */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar cidade (ex: São Paulo)..."
+            placeholderTextColor="#88a0c0"
+            value={searchCity}
+            onChangeText={setSearchCity}
+            onSubmitEditing={handleSearch}
+          />
+          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+            <Ionicons name="search" size={20} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
         {/* Topo com a cidade */}
         <View style={styles.header}>
           <Text style={styles.locationText}>
@@ -32,6 +85,8 @@ export default function App() {
 
         {/* Temperatura principal */}
         <View style={styles.currentWeatherContainer}>
+          {weatherData && getWeatherIcon(weatherData.condition_slug, 80, '#FFD700')}
+          
           <Text style={styles.temperatureText}>
             {weatherData ? `${weatherData.temp}º` : '--º'}
           </Text>
@@ -46,7 +101,7 @@ export default function App() {
         {/* Informações detalhadas */}
         <View style={styles.metricsContainer}>
           <Text style={styles.metricText}>💧 {weatherData ? `${weatherData.humidity}%` : '--%'}</Text>
-          <Text style={styles.metricText}>⬇ {weatherData ? `${weatherData.rain} mm` : '-- mm'}</Text>
+          <Text style={styles.metricText}>⬇ {weatherData ? `${weatherData.rain || 0} mm` : '-- mm'}</Text>
           <Text style={styles.metricText}>🌬️ {weatherData ? weatherData.wind_speedy : '--'}</Text>
         </View>
 
@@ -68,18 +123,39 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     padding: 20,
+    paddingTop: 40,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    color: '#fff',
+    marginRight: 10,
+  },
+  searchButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    borderRadius: 10,
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   locationText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   currentWeatherContainer: {
     alignItems: 'center',
-    marginVertical: 30,
+    marginVertical: 20,
   },
   temperatureText: {
     color: '#fff',
