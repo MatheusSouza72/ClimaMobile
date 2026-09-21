@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Busca a chave do .env; se não encontrar ou for undefined, usa a chave de reserva
-const API_KEY = process.env.EXPO_PUBLIC_API_KEY || 'ba94c742';
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY || '';
 
 export const getWeather = async (cityName = 'Recife,PE') => {
   try {

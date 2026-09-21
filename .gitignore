@@ -1,38 +1,94 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+Dependencies
 
-# dependencies
 node_modules/
 
-# Expo
+Expo
+
 .expo/
+.expo-shared/
 dist/
 web-build/
 expo-env.d.ts
 
-# Native
-*.orig.*
+Native
+
+.orig.
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
+*.keystore
 
-# Metro
+Metro
+
 .metro-health-check*
 
-# debug
+Debug / logs
+
 npm-debug.*
 yarn-debug.*
 yarn-error.*
+pnpm-debug.*
+*.log
 
-# macOS
-.DS_Store
-*.pem
+Environment variables / secrets
 
-# local env files
 .env
 .env.*
+!.env.example
 .env*.local
 
-# typescript
+TypeScript
+
 *.tsbuildinfo
+
+macOS
+
+.DS_Store
+
+Windows
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+IDE / Editors
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+React Native
+
+*.jsbundle
+
+Testing / coverage
+
+coverage/
+
+Build artifacts
+
+build/
+*.apk
+*.aab
+*.ipa
+
+Temporary files
+
+*.tmp
+*.temp
+*.swp
+*.swo
+
+Credentials / certificates
+
+*.pem
+*.pfx
+*.crt
+*.cer
+*.der
+credentials.json
+google-services.json
+GoogleService-Info.plist
